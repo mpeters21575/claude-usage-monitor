@@ -1,0 +1,58 @@
+<idea-plugin>
+    <id>com.ods.claudeusage</id>
+    <name>Claude Usage Monitor</name>
+    <vendor url="https://www.odsenergysolutions.com">ODS Energy Solutions</vendor>
+    <description><![CDATA[
+        Live dashboard for your Claude subscription while you work with Claude Code.
+        <ul>
+            <li>Current rate-limit utilisation of the connected Claude account (5-hour and 7-day windows, per model where available)</li>
+            <li>Subscription plan and rate-limit tier of the signed-in account</li>
+            <li>Model used by the active Claude Code session and how full its context window is</li>
+            <li>Forecast of when a window hits its limit and when the current chat should move to a new session</li>
+            <li>Estimated tokens left per window and per model, derived from local transcripts</li>
+            <li>Real-time chart, status bar widget and threshold notifications</li>
+        </ul>
+        All data is read from Claude Code's local files (<code>~/.claude</code>) and Anthropic's account usage endpoint.
+        Nothing is sent anywhere else.
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="Claude Usage"
+                    anchor="right"
+                    icon="/icons/claudeUsage.svg"
+                    factoryClass="com.ods.claudeusage.ui.UsageToolWindowFactory"/>
+
+        <applicationConfigurable parentId="tools"
+                                 id="com.ods.claudeusage.settings"
+                                 displayName="Claude Usage Monitor"
+                                 instance="com.ods.claudeusage.settings.UsageConfigurable"/>
+
+        <statusBarWidgetFactory id="ClaudeUsageStatusBar"
+                                implementation="com.ods.claudeusage.ui.statusbar.UsageStatusBarWidgetFactory"
+                                order="before Position"/>
+
+        <postStartupActivity implementation="com.ods.claudeusage.service.UsageStartupActivity"/>
+
+        <notificationGroup id="Claude Usage Monitor" displayType="BALLOON"/>
+    </extensions>
+
+    <actions>
+        <action id="ClaudeUsage.Refresh"
+                class="com.ods.claudeusage.actions.RefreshUsageAction"
+                text="Refresh Claude Usage"
+                description="Fetch the latest usage from Anthropic and rescan local transcripts"
+                icon="AllIcons.Actions.Refresh"/>
+        <action id="ClaudeUsage.RefreshToken"
+                class="com.ods.claudeusage.actions.RefreshTokenAction"
+                text="Refresh Claude Access Token"
+                description="Exchange the stored refresh token for a new access token"
+                icon="AllIcons.Actions.Lightning"/>
+        <action id="ClaudeUsage.OpenSettings"
+                class="com.ods.claudeusage.actions.OpenSettingsAction"
+                text="Claude Usage Settings"
+                description="Open the Claude Usage Monitor settings"
+                icon="AllIcons.General.Settings"/>
+    </actions>
+</idea-plugin>
